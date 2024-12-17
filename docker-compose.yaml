@@ -60,6 +60,10 @@ services:
       KAFKA_TOPIC: ${KAFKA_TOPIC}
       KAFKA_SERVER: ${KAFKA_SERVER}
       API_URL: ${API_URL}
+      API_COUNTRY_ID: ${API_COUNTRY_ID}
+      API_LANG: ${API_LANG}
+      API_UNITS: ${API_UNITS}
+      API_KEY: ${API_KEY}
       FETCH_INTERVAL: ${FETCH_INTERVAL}
     ports:
       - "5000:5000"

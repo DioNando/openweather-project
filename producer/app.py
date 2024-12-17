@@ -11,7 +11,7 @@ app = Flask(__name__)
 # Configuration
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC')
 KAFKA_SERVER = os.getenv('KAFKA_SERVER')
-API_URL = os.getenv('API_URL')
+API_URL = os.getenv('API_URL') + 'id=' + os.getenv('API_COUNTRY_ID') + '&lang=' + os.getenv('API_LANG') + '&appid=' + os.getenv('API_KEY') + '&units=' + os.getenv('API_UNITS')  
 FETCH_INTERVAL = int(os.getenv('FETCH_INTERVAL', '10'))
 
 # Initialize Kafka producer

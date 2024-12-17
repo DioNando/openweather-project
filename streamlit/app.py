@@ -22,7 +22,7 @@ def convert_timestamp_to_time(timestamp):
 def fetch_data():
     """Récupérer les données depuis MongoDB."""
     try:
-        data = list(mongo_collection.find({}, {'_id': 0}))
+        data = list(mongo_collection.find({}, {'_id': 0}).sort("_id", -1))
         return data
     except Exception as e:
         st.error(f"Erreur lors de la récupération des données : {e}")
@@ -51,20 +51,23 @@ def plot_data(df):
     # Graphique des températures
     st.subheader("Graphique des températures")
     fig, ax = plt.subplots()
-    ax.plot(df['time'], df['temperature'], label='Température')
-    ax.set_xlabel("Temps")
-    ax.set_ylabel("Température (K)")
+    ax.bar(df['city'], df['temperature'], label='Température', color='skyblue')
+    ax.set_xlabel("Ville")
+    ax.set_ylabel("Température (°C)")
     ax.legend()
+    ax.set_xticklabels(weather_counts.index, rotation=45, ha='right')
     st.pyplot(fig)
 
     # Répartition des descriptions météo
     st.subheader("Répartition des descriptions météo")
     weather_counts = df['weather'].value_counts()
     fig, ax = plt.subplots()
-    weather_counts.plot(kind='bar', ax=ax)
+    ax.bar(weather_counts.index, weather_counts.values, color='orange')
     ax.set_xlabel("Description météo")
     ax.set_ylabel("Nombre d'occurrences")
+    ax.set_xticklabels(weather_counts.index, rotation=45, ha='right')
     st.pyplot(fig)
+
 
 # Interface Streamlit
 st.title("Visualisation des données météo")
