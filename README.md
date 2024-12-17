@@ -1,5 +1,3 @@
-Voici un exemple de README que vous pouvez utiliser pour documenter votre projet. Vous pouvez personnaliser les sections en fonction des besoins spécifiques de votre projet.
-
 ```markdown
 # Weather Data Pipeline - Kafka Consumer and Email Notifier
 
