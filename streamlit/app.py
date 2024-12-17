@@ -57,6 +57,43 @@ def plot_data(df):
     ax.legend()
     st.pyplot(fig)
 
+    # Températures minimale et maximale par ville
+    st.subheader("Températures minimale et maximale par ville")
+    fig, ax = plt.subplots()
+    df.groupby('ville')[['température_minimale', 'température_maximale']].mean().plot(kind='bar', ax=ax, color=['blue', 'red'])
+    ax.set_xlabel("Ville")
+    ax.set_ylabel("Température (°C)")
+    ax.legend(["Température minimale", "Température maximale"])
+    st.pyplot(fig)
+
+    # Évolution de la température dans le temps pour une ville
+    selected_city = st.selectbox("Sélectionnez une ville pour voir l'évolution des températures", df['ville'].unique())
+    st.subheader(f"Évolution des températures à {selected_city}")
+    fig, ax = plt.subplots()
+    city_data = df[df['ville'] == selected_city]
+    ax.plot(city_data['heure'], city_data['température'], marker='o', label='Température')
+    ax.set_xlabel("Heure")
+    ax.set_ylabel("Température (°C)")
+    ax.legend()
+    st.pyplot(fig)
+
+    # Comparaison des températures ressenties et réelles
+    st.subheader("Comparaison des températures ressenties et réelles par ville")
+    fig, ax = plt.subplots()
+    df.groupby('ville')[['température', 'température_ressentie']].mean().plot(kind='bar', ax=ax, color=['orange', 'cyan'])
+    ax.set_xlabel("Ville")
+    ax.set_ylabel("Température (°C)")
+    ax.legend(["Température réelle", "Température ressentie"])
+    st.pyplot(fig)
+
+    # Répartition de l'humidité
+    st.subheader("Répartition de l'humidité")
+    fig, ax = plt.subplots()
+    ax.hist(df['humidité'], bins=10, color='lightgreen', edgecolor='black')
+    ax.set_xlabel("Humidité (%)")
+    ax.set_ylabel("Nombre d'occurrences")
+    st.pyplot(fig)
+
     # Répartition des descriptions météo
     st.subheader("Répartition des descriptions météo")
     weather_counts = df['description_météo'].value_counts()
@@ -65,6 +102,30 @@ def plot_data(df):
     ax.set_xlabel("Description météo")
     ax.set_ylabel("Nombre d'occurrences")
     ax.set_xticklabels(weather_counts.index, rotation=45, ha='right')
+    st.pyplot(fig)
+
+    # Vitesse moyenne du vent par ville
+    st.subheader("Vitesse moyenne du vent par ville")
+    fig, ax = plt.subplots()
+    df.groupby('ville')['vitesse_vent'].mean().plot(kind='bar', ax=ax, color='purple')
+    ax.set_xlabel("Ville")
+    ax.set_ylabel("Vitesse du vent (m/s)")
+    st.pyplot(fig)
+
+    # Couverture nuageuse moyenne par ville
+    st.subheader("Couverture nuageuse moyenne par ville")
+    fig, ax = plt.subplots()
+    df.groupby('ville')['couverture_nuageuse'].mean().plot(kind='bar', ax=ax, color='gray')
+    ax.set_xlabel("Ville")
+    ax.set_ylabel("Couverture nuageuse (%)")
+    st.pyplot(fig)
+
+    # Répartition des types de météo
+    st.subheader("Répartition des types de météo")
+    fig, ax = plt.subplots()
+    weather_counts = df['description_météo'].value_counts()
+    ax.pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', colors=plt.cm.tab20.colors)
+    ax.set_title("Types de météo")
     st.pyplot(fig)
 
 # Interface Streamlit
