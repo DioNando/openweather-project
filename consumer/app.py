@@ -1,3 +1,4 @@
+from datetime import datetime
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 import json
@@ -29,11 +30,26 @@ def process_weather_data(data):
     try:
         # Exemple : extraction des champs pertinents
         processed_data = {
-            "city": data.get("city", {}).get("name"),
-            "timestamp": data.get("list", [{}])[0].get("dt"),
-            "temperature": data.get("list", [{}])[0].get("main", {}).get("temp"),
-            "weather": data.get("list", [{}])[0].get("weather", [{}])[0].get("description")
+            "ville": data.get("city", {}).get("name"),  # Ville
+            "pays": data.get("city", {}).get("country"),  # Pays
+            "horodatage": data.get("list", [{}])[0].get("dt"),  # Timestamp brut
+            "temps_formaté": datetime.utcfromtimestamp(data.get("list", [{}])[0].get("dt")).strftime('%Y-%m-%d %H:%M:%S'),  # Temps formaté
+            "température": data.get("list", [{}])[0].get("main", {}).get("temp"),  # Température
+            "température_ressentie": data.get("list", [{}])[0].get("main", {}).get("feels_like"),  # Température ressentie
+            "température_minimale": data.get("list", [{}])[0].get("main", {}).get("temp_min"),  # Température minimale
+            "température_maximale": data.get("list", [{}])[0].get("main", {}).get("temp_max"),  # Température maximale
+            "pression": data.get("list", [{}])[0].get("main", {}).get("pressure"),  # Pression atmosphérique
+            "humidité": data.get("list", [{}])[0].get("main", {}).get("humidity"),  # Humidité
+            "description_météo": data.get("list", [{}])[0].get("weather", [{}])[0].get("description"),  # Description météo
+            "icône_météo": data.get("list", [{}])[0].get("weather", [{}])[0].get("icon"),  # Icône météo
+            "vitesse_vent": data.get("list", [{}])[0].get("wind", {}).get("speed"),  # Vitesse du vent
+            "direction_vent": data.get("list", [{}])[0].get("wind", {}).get("deg"),  # Direction du vent
+            "couverture_nuageuse": data.get("list", [{}])[0].get("clouds", {}).get("all"),  # Couverture nuageuse
+            "visibilité": data.get("list", [{}])[0].get("visibility"),  # Visibilité
+            "précipitations": data.get("list", [{}])[0].get("rain", {}).get("3h", 0),  # Précipitations sur 3 heures
+            "neige": data.get("list", [{}])[0].get("snow", {}).get("3h", 0)  # Neige sur 3 heures
         }
+
 
         # Insérer dans MongoDB
         mongo_collection.insert_one(processed_data)

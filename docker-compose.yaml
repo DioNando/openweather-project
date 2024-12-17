@@ -60,7 +60,7 @@ services:
       KAFKA_TOPIC: ${KAFKA_TOPIC}
       KAFKA_SERVER: ${KAFKA_SERVER}
       API_URL: ${API_URL}
-      API_COUNTRY_ID: ${API_COUNTRY_ID}
+      API_CITY_IDS: ${API_CITY_IDS}
       API_LANG: ${API_LANG}
       API_UNITS: ${API_UNITS}
       API_KEY: ${API_KEY}
