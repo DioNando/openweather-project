@@ -1,112 +1,124 @@
 services:
+
+  # Service Zookeeper, utilisé par Kafka pour la gestion de la distribution
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.1
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_CLIENT_PORT: 2181  # Port client pour la communication avec Zookeeper
+      ZOOKEEPER_TICK_TIME: 2000    # Temps de tick pour Zookeeper
     ports:
-      - "2181:2181"
-    restart: unless-stopped
+      - "2181:2181"  # Expose le port 2181 de Zookeeper
+    restart: unless-stopped  # Redémarre le service si il échoue, sauf si l'arrêt est manuel
 
+  # Service Kafka, utilisé pour le stockage et la distribution des messages
   kafka:
     image: confluentinc/cp-kafka:7.4.1
     depends_on:
-      - zookeeper
+      - zookeeper  # Kafka dépend de Zookeeper pour son fonctionnement
     ports:
-      - "9092:9092"
+      - "9092:9092"  # Expose le port Kafka 9092
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    restart: unless-stopped
-  
+      KAFKA_BROKER_ID: 1  # ID du broker Kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181  # Connecte Kafka à Zookeeper
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092  # Adresse utilisée pour accéder à Kafka
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Nombre de répliques pour les offsets Kafka
+    restart: unless-stopped  # Redémarre Kafka si il échoue
+
+  # Kafdrop, une interface web pour visualiser et gérer Kafka
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
     depends_on:
-      - kafka
+      - kafka  # Kafdrop dépend de Kafka pour fonctionner
     ports:
-      - "9000:9000"
+      - "9000:9000"  # Expose le port 9000 pour l'interface web
     environment:
-      KAFKA_BROKERCONNECT: kafka:9092
+      KAFKA_BROKERCONNECT: kafka:9092  # Connexion à Kafka
 
+  # MongoDB, base de données NoSQL utilisée pour stocker les données
   mongodb:
-    image: mongo:6.0
-    restart: unless-stopped
+    image: mongo:6.0  # Image officielle MongoDB
+    restart: unless-stopped  # Redémarre MongoDB si il échoue
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: root  # Utilisateur administrateur de MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: example  # Mot de passe administrateur
     ports:
-      - "27017:27017"
+      - "27017:27017"  # Expose le port MongoDB 27017
     volumes:
-      - mongodb-data-volume:/data/db
-      - ./init-mongo:/docker-entrypoint-initdb.d
+      - mongodb-data-volume:/data/db  # Volume pour persister les données de MongoDB
+      - ./init-mongo:/docker-entrypoint-initdb.d  # Scripts d'initialisation de MongoDB
 
+  # Mongo Express, interface web pour gérer MongoDB
   mongo-express:
     image: mongo-express:1.0.0-alpha.4
-    restart: unless-stopped
+    restart: unless-stopped  # Redémarre Mongo Express si il échoue
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root  # Utilisateur administrateur MongoDB
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example  # Mot de passe administrateur
+      ME_CONFIG_MONGODB_SERVER: mongodb  # Connexion à MongoDB
     ports:
-      - "8081:8081"
+      - "8081:8081"  # Expose l'interface web Mongo Express sur le port 8081
 
+  # Producer, service qui envoie des messages à Kafka (par exemple, des données météo)
   producer:
     build:
-      context: ./producer
-    restart: unless-stopped
+      context: ./producer  # Chemin du Dockerfile du producer
+    restart: unless-stopped  # Redémarre le service si il échoue
     environment:
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-      KAFKA_SERVER: ${KAFKA_SERVER}
-      API_URL: ${API_URL}
-      API_CITY_IDS: ${API_CITY_IDS}
-      API_LANG: ${API_LANG}
-      API_UNITS: ${API_UNITS}
-      API_KEY: ${API_KEY}
-      FETCH_INTERVAL: ${FETCH_INTERVAL}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}  # Topic Kafka sur lequel envoyer les messages
+      KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
+      API_URL: ${API_URL}  # URL de l'API de météo (par exemple, OpenWeather)
+      API_CITY_IDS: ${API_CITY_IDS}  # Liste des IDs des villes pour la récupération des données
+      API_LANG: ${API_LANG}  # Langue des données
+      API_UNITS: ${API_UNITS}  # Unités des données
+      API_KEY: ${API_KEY}  # Clé API pour accéder à l'API
+      FETCH_INTERVAL: ${FETCH_INTERVAL}  # Intervalle de temps pour récupérer les données (en secondes)
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Expose le service sur le port 5000
     depends_on:
-      - kafka
+      - kafka  # Le producer dépend de Kafka pour envoyer les messages
 
+  # Consumer, service qui consomme les messages de Kafka et les enregistre dans MongoDB
   consumer:
     build:
-      context: ./consumer
-    restart: unless-stopped
+      context: ./consumer  # Chemin du Dockerfile du consumer
+    restart: unless-stopped  # Redémarre le service si il échoue
     environment:
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-      KAFKA_SERVER: ${KAFKA_SERVER}
-      MONGO_URI: ${MONGO_URI}
-      MONGO_DB: ${MONGO_DB}
-      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}  # Topic Kafka à consommer
+      KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
+      MONGO_URI: ${MONGO_URI}  # URI de connexion à MongoDB
+      MONGO_DB: ${MONGO_DB}  # Nom de la base de données MongoDB
+      MONGO_COLLECTION: ${MONGO_COLLECTION}  # Nom de la collection MongoDB
     depends_on:
-      - kafka
-      - mongodb
+      - kafka  # Le consumer dépend de Kafka pour recevoir les messages
+      - mongodb  # Le consumer dépend de MongoDB pour stocker les données
 
+  # Mailer, service pour envoyer des emails
   mailer:
-    build: ./mailer
-    restart: unless-stopped
+    build: ./mailer  # Chemin du Dockerfile du mailer
+    restart: unless-stopped  # Redémarre le service si il échoue
     depends_on:
-      - maildev
+      - maildev  # Le mailer dépend de Maildev pour envoyer les emails
 
+  # Maildev, un serveur SMTP pour tester l'envoi d'emails localement
   maildev:
-    image: maildev/maildev:latest
-    restart: unless-stopped
+    image: maildev/maildev:latest  # Image officielle de Maildev
+    restart: unless-stopped  # Redémarre Maildev si il échoue
     ports:
       - "1080:1080"  # Interface web accessible sur http://localhost:1080
       - "1025:1025"  # Serveur SMTP sur port 1025
 
+  # Streamlit, service de visualisation des données météo avec une interface web
   streamlit:
-    build: ./streamlit
+    build: ./streamlit  # Chemin du Dockerfile de Streamlit
     environment:
-      MONGO_URI: ${MONGO_URI}
-      MONGO_DB: ${MONGO_DB}
-      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      MONGO_URI: ${MONGO_URI}  # URI de connexion à MongoDB
+      MONGO_DB: ${MONGO_DB}  # Nom de la base de données MongoDB
+      MONGO_COLLECTION: ${MONGO_COLLECTION}  # Nom de la collection MongoDB
     ports:
-      - "8501:8501"
+      - "8501:8501"  # Expose l'application Streamlit sur le port 8501
     depends_on:
-      - mongodb
+      - mongodb  # Streamlit dépend de MongoDB pour accéder aux données
 
+# Définition des volumes pour persister les données
 volumes:
   mongodb-data-volume:
