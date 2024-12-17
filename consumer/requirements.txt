@@ -3,3 +3,4 @@ kafka-python
 requests
 apscheduler
 pymongo
+python-dotenv

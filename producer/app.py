@@ -3,14 +3,16 @@ from kafka import KafkaProducer
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import json
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
 # Configuration
-KAFKA_TOPIC = 'weather_topic'
-KAFKA_SERVER = 'kafka:9092'
-API_URL = 'http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=e181f39c92f75588ac5e6cb725896788'
-FETCH_INTERVAL = 300  # 5 minutes in seconds
+KAFKA_TOPIC = os.getenv('KAFKA_TOPIC')
+KAFKA_SERVER = os.getenv('KAFKA_SERVER')
+API_URL = os.getenv('API_URL')
+FETCH_INTERVAL = os.getenv('FETCH_INTERVAL')
 
 # Initialize Kafka producer
 producer = KafkaProducer(

@@ -56,10 +56,13 @@ services:
     build:
       context: ./producer
     restart: unless-stopped
+    environment:
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      API_URL: ${API_URL}
+      FETCH_INTERVAL: ${FETCH_INTERVAL}
     ports:
       - "5000:5000"
-    environment:
-      KAFKA_SERVER: kafka:9092
     depends_on:
       - kafka
 
@@ -68,8 +71,11 @@ services:
       context: ./consumer
     restart: unless-stopped
     environment:
-      KAFKA_SERVER: kafka:9092
-      MONGO_URI: mongodb://root:example@mongodb:27017/?authSource=admin
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_SERVER: ${KAFKA_SERVER}
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
     depends_on:
       - kafka
       - mongodb

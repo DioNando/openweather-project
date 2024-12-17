@@ -1,13 +1,14 @@
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 import json
+import os
 
 # Configuration
-KAFKA_TOPIC = 'weather_topic'
-KAFKA_SERVER = 'kafka:9092'  # Nom de service Kafka dans le docker-compose
-MONGO_URI = 'mongodb://root:example@mongodb:27017/?authSource=admin'  # Connexion MongoDB
-MONGO_DB = 'weather_db'
-MONGO_COLLECTION = 'forecast_data'
+KAFKA_TOPIC = os.getenv('KAFKA_TOPIC')
+KAFKA_SERVER = os.getenv('KAFKA_SERVER')
+MONGO_URI = os.getenv('MONGO_URI')
+MONGO_DB = os.getenv('MONGO_DB')
+MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
 
 # Initialiser le client MongoDB
 mongo_client = MongoClient(MONGO_URI)
