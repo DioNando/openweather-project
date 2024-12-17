@@ -2,16 +2,22 @@ import streamlit as st
 from pymongo import MongoClient
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+import os
 
 # Configuration
-MONGO_URI = 'mongodb://root:example@mongodb:27017/?authSource=admin'  # Connexion MongoDB
-MONGO_DB = 'weather_db'
-MONGO_COLLECTION = 'forecast_data'
+MONGO_URI = os.getenv('MONGO_URI') # Connexion MongoDB
+MONGO_DB = os.getenv('MONGO_DB')
+MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
 
 # Initialiser le client MongoDB
 mongo_client = MongoClient(MONGO_URI)
 mongo_db = mongo_client[MONGO_DB]
 mongo_collection = mongo_db[MONGO_COLLECTION]
+
+def convert_timestamp_to_time(timestamp):
+    """Convertir un timestamp en format hh:mm:ss."""
+    return datetime.utcfromtimestamp(timestamp).strftime('%H:%M:%S')
 
 def fetch_data():
     """Récupérer les données depuis MongoDB."""
@@ -23,10 +29,18 @@ def fetch_data():
         return []
 
 def create_dataframe(data):
-    """Convertir les données en DataFrame Pandas."""
+    """Convertir les données en DataFrame Pandas et formater les timestamps."""
     if not data:
         return pd.DataFrame()
-    return pd.DataFrame(data)
+    
+    df = pd.DataFrame(data)
+    
+    # Convertir le timestamp en format hh:mm:ss
+    if 'timestamp' in df.columns:
+        df['time'] = df['timestamp'].apply(convert_timestamp_to_time)
+    
+    return df
+
 
 def plot_data(df):
     """Créer des graphiques basés sur les données."""
@@ -37,7 +51,7 @@ def plot_data(df):
     # Graphique des températures
     st.subheader("Graphique des températures")
     fig, ax = plt.subplots()
-    ax.plot(pd.to_datetime(df['timestamp'], unit='s'), df['temperature'], label='Température')
+    ax.plot(df['time'], df['temperature'], label='Température')
     ax.set_xlabel("Temps")
     ax.set_ylabel("Température (K)")
     ax.legend()

@@ -95,6 +95,10 @@ services:
 
   streamlit:
     build: ./streamlit
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
     ports:
       - "8501:8501"
     depends_on:
