@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.email import EmailOperator
 from airflow.models import Variable
 from kafka import KafkaProducer
 from datetime import datetime, timedelta
@@ -20,8 +19,8 @@ API_WEATHER_URL = os.getenv('API_WEATHER_URL', 'http://api.openweathermap.org/da
 API_WEATHER_LANG = os.getenv('API_WEATHER_LANG', 'fr')
 API_WEATHER_KEY = os.getenv('API_WEATHER_KEY', 'YOUR_API_WEATHER_KEY')
 API_WEATHER_UNITS = os.getenv('API_WEATHER_UNITS', 'metric')
-EMAIL_RECIPIENT = "your_email@example.com"
 FETCH_INTERVAL = int(os.getenv('FETCH_INTERVAL', '10'))
+EMAIL_RECIPIENT = "your_email@example.com"
 
 # Default arguments for the DAG
 default_args = {
@@ -37,7 +36,8 @@ default_args = {
 with DAG(
     "weather_kafka_producer",
     default_args=default_args,
-    description="Pipeline to fetch data, process via Kafka, and notify via email",
+    description="Pipeline to fetch weather data for cities and send email once the cycle is complete",
+    # schedule_interval=timedelta(minutes=30),
     schedule_interval=timedelta(seconds=FETCH_INTERVAL),
     start_date=datetime(2024, 1, 1),
     catchup=False,
@@ -45,7 +45,6 @@ with DAG(
 
     def fetch_and_publish_weather(**context):
         """Fetch weather data for a city and publish it to Kafka."""
-        # Récupérer l'index courant depuis la Variable persistante
         current_index = Variable.get("current_city_index", default_var=0)
         current_index = int(current_index)
 
@@ -73,50 +72,53 @@ with DAG(
 
             # Sauvegarder le city_id dans XCom
             context['ti'].xcom_push(key='city_id', value=city_id)
+
+            # Vérification du cycle terminé
+            if next_index == 0:
+                Variable.set("cycle_completed", True)
+            else:
+                Variable.set("cycle_completed", False)
+
         except Exception as e:
             print(f"Error processing city ID {city_id}: {e}")
             raise
+
+    def send_email_if_cycle_complete(**context):
+        """Send email only if the cycle is complete."""
+        is_cycle_complete = Variable.get("cycle_completed", default_var=False)
+        if str(is_cycle_complete).lower() == "true":  # Vérifier si le cycle est terminé
+            print("Cycle complete. Sending email.")
+            email_content = """
+            <html>
+            <body>
+                <h1>Weather Data Pipeline</h1>
+                <p>The cycle of fetching weather data for all cities is complete!</p>
+                <ul>
+                    <li><b>Total Cities Processed:</b> {}</li>
+                    <li><b>Kafka Topic:</b> {}</li>
+                </ul>
+            </body>
+            </html>
+            """.format(len(API_WEATHER_CITY_IDS), KAFKA_WEATHER_TOPIC)
+
+            # Envoi de l'email
+            from airflow.operators.email import EmailOperator
+            email_operator = EmailOperator(
+                task_id="send_success_email",
+                to=EMAIL_RECIPIENT,
+                subject="Weather Airflow Producer Pipeline - Cycle Complete",
+                html_content=email_content,
+            )
+            email_operator.execute(context)
 
     fetch_weather_task = PythonOperator(
         task_id="fetch_data_and_push_to_kafka",
         python_callable=fetch_and_publish_weather,
     )
 
-    def build_email_content(**context):
-        """Generate email content dynamically."""
-        city_id = context['ti'].xcom_pull(key='city_id', task_ids='fetch_data_and_push_to_kafka')
-        pipeline_start_time = context['execution_date']
-        pipeline_end_time = context['dag_run'].end_date if context['dag_run'] else 'N/A'
-
-        return f"""
-        <html>
-        <body>
-            <h1>Weather Data Pipeline</h1>
-            <p>The pipeline executed successfully!</p>
-            <ul>
-                <li><b>City ID Processed:</b> {city_id}</li>
-                <li><b>Start Time:</b> {pipeline_start_time}</li>
-                <li><b>End Time:</b> {pipeline_end_time}</li>
-                <li><b>Kafka Topic:</b> {KAFKA_WEATHER_TOPIC}</li>
-            </ul>
-        </body>
-        </html>
-        """
-
-    def send_email(**context):
-        """Send the success email with the generated content."""
-        email_content = build_email_content(**context)
-        email_operator = EmailOperator(
-            task_id="send_success_email",
-            to=EMAIL_RECIPIENT,
-            subject="Weather Airflow Producer Pipeline Success",
-            html_content=email_content,
-        )
-        email_operator.execute(context)
-
     email_task = PythonOperator(
-        task_id="generate_and_send_email",
-        python_callable=send_email,
+        task_id="check_cycle_and_send_email",
+        python_callable=send_email_if_cycle_complete,
     )
 
     # Task Dependencies
