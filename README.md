@@ -95,7 +95,7 @@ Voici une représentation simplifiée de l'architecture du projet :
 ```
 +--------------------+       +-----------------+       +-------------------+
 | OpenWeather API    | --->  | Kafka Producer  | --->  | Kafka             |
-|                    |       |                 |       |                   |
+|                    |       | dans Airflow    |       |                   |
 +--------------------+       +-----------------+       +-------------------+
                                           |                   
                                           v
