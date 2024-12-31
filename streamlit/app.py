@@ -4,17 +4,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 import time
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Configuration
 MONGO_URI = os.getenv('MONGO_URI')  # Connexion MongoDB
-MONGO_DB = os.getenv('MONGO_DB')
-MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
+MONGO_DB_WEATHER = os.getenv('MONGO_DB_WEATHER')
+MONGO_COLLECTION_WEATHER = os.getenv('MONGO_COLLECTION_WEATHER')
+FETCH_INTERVAL = int(os.getenv('FETCH_INTERVAL', '10'))
 
 # Initialiser le client MongoDB
 mongo_client = MongoClient(MONGO_URI)
-mongo_db = mongo_client[MONGO_DB]
-mongo_collection = mongo_db[MONGO_COLLECTION]
+mongo_db = mongo_client[MONGO_DB_WEATHER]
+mongo_collection = mongo_db[MONGO_COLLECTION_WEATHER]
 
 def convert_timestamp_to_time(timestamp):
     """Convertir un timestamp en format hh:mm."""
@@ -132,8 +137,10 @@ def plot_data(df):
 st.title("Visualisation des données météo")
 
 # Ajouter une option pour l'auto-refresh
-auto_refresh = st.checkbox("Activer l'actualisation automatique toutes les 10 secondes", value=False)
-
+auto_refresh = st.checkbox(
+    f"Activer l'actualisation automatique toutes les {FETCH_INTERVAL} secondes", 
+    value=False
+)
 # Charger les données
 data = fetch_data()
 df = create_dataframe(data)
@@ -149,5 +156,5 @@ plot_data(df)
 # Boucle pour actualisation automatique
 if auto_refresh:
     # Sleep pendant 10 secondes avant de relancer
-    time.sleep(10)
+    time.sleep(FETCH_INTERVAL)
     st.rerun()

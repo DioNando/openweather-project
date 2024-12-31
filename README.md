@@ -38,23 +38,18 @@ Dans le fichier `.env`, définissez les variables nécessaires pour que les serv
 
 ```env
 MONGO_URI=mongodb://root:example@mongodb:27017/?authSource=admin
-MONGO_DB=weather_db
-MONGO_COLLECTION=forecast_data
+MONGO_DB_WEATHER=weather_db
+MONGO_COLLECTION_WEATHER=forecast_data
 
-KAFKA_TOPIC=weather_data
+KAFKA_WEATHER_TOPIC=weather_data
 KAFKA_SERVER=kafka:9092
 
-API_URL=http://api.openweathermap.org/data/2.5/forecast?
-API_KEY=your_openweather_api_key
-API_CITY_IDS=city_ids
-API_LANG=fr
-API_UNITS=metric
+API_WEATHER_URL=http://api.openweathermap.org/data/2.5/forecast?
+API_WEATHER_KEY=your_openweather_api_key
+API_WEATHER_CITY_IDS=city_ids
+API_WEATHER_LANG=fr
+API_WEATHER_UNITS=metric
 FETCH_INTERVAL=10  # Intervalle de récupération des données en secondes
-
-SENDER_EMAIL=no-reply@example.com
-RECEIVER_EMAIL=test@example.com
-SMTP_SERVER=maildev
-SMTP_PORT=1025
 ```
 
 ### Démarrer l'application
@@ -79,6 +74,7 @@ SMTP_PORT=1025
 
 ### Services disponibles
 
+- **Airflow** : Port 8080 (utilisé pour la gestion des messages Kafka en tant que producer et scheduler).
 - **Kafka** : Port 9092 (utilisé pour la gestion des messages Kafka).
 - **MongoDB** : Port 27017 (base de données pour stocker les données météo).
 - **MailDev** : Port 1080 (interface web pour tester les emails) et Port 1025 (serveur SMTP).

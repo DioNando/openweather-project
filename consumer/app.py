@@ -3,22 +3,26 @@ from kafka import KafkaConsumer
 from pymongo import MongoClient
 import json
 import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Configuration
-KAFKA_TOPIC = os.getenv('KAFKA_TOPIC')
+KAFKA_WEATHER_TOPIC = os.getenv('KAFKA_WEATHER_TOPIC')
 KAFKA_SERVER = os.getenv('KAFKA_SERVER')
 MONGO_URI = os.getenv('MONGO_URI')
-MONGO_DB = os.getenv('MONGO_DB')
-MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
+MONGO_DB_WEATHER = os.getenv('MONGO_DB_WEATHER')
+MONGO_COLLECTION_WEATHER = os.getenv('MONGO_COLLECTION_WEATHER')
 
 # Initialiser le client MongoDB
 mongo_client = MongoClient(MONGO_URI)
-mongo_db = mongo_client[MONGO_DB]
-mongo_collection = mongo_db[MONGO_COLLECTION]
+mongo_db = mongo_client[MONGO_DB_WEATHER]
+mongo_collection = mongo_db[MONGO_COLLECTION_WEATHER]
 
 # Initialiser le consommateur Kafka
 consumer = KafkaConsumer(
-    KAFKA_TOPIC,
+    KAFKA_WEATHER_TOPIC,
     bootstrap_servers=KAFKA_SERVER,
     auto_offset_reset='earliest',
     enable_auto_commit=True,
