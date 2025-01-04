@@ -36,6 +36,8 @@ def process_weather_data(data):
         processed_data = {
             "ville": data.get("city", {}).get("name"),  # Ville
             "pays": data.get("city", {}).get("country"),  # Pays
+            "lattitude": data.get("city", {}).get("coord", {}).get("lat"),
+            "longitude": data.get("city", {}).get("coord", {}).get("lon"),
             "horodatage": data.get("list", [{}])[0].get("dt"),  # Timestamp brut
             "temps_formaté": datetime.utcfromtimestamp(data.get("list", [{}])[0].get("dt")).strftime('%Y-%m-%d %H:%M:%S'),  # Temps formaté
             "température": data.get("list", [{}])[0].get("main", {}).get("temp"),  # Température
