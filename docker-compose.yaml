@@ -229,21 +229,6 @@ services:
       MONGO_COLLECTION_WEATHER: ${MONGO_COLLECTION_WEATHER}  # Nom de la collection MongoDB
 
   # Consumer, service qui consomme les messages de Kafka et les enregistre dans MongoDB
-  consumer-prediction:
-    build:
-      context: ./consumer-prediction  # Chemin du Dockerfile du consumer
-    restart: unless-stopped  # Redémarre le service si il échoue
-    environment:
-      KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
-      KAFKA_WEATHER_TOPIC: ${KAFKA_WEATHER_TOPIC}  # Topic Kafka sur lequel envoyer les messages
-      API_WEATHER_URL: ${API_WEATHER_URL}  # URL de l'API de météo (par exemple, OpenWeather)
-      API_WEATHER_CITY_IDS: ${API_WEATHER_CITY_IDS}  # Liste des IDs des villes pour la récupération des données
-      API_WEATHER_LANG: ${API_WEATHER_LANG}  # Langue des données
-      API_WEATHER_UNITS: ${API_WEATHER_UNITS}  # Unités des données
-      API_WEATHER_KEY: ${API_WEATHER_KEY}  # Clé API pour accéder à l'API
-      KAFKA_ALERT_TOPIC: ${KAFKA_ALERT_TOPIC}  # Topic Kafka à consommer
-
-  # Consumer, service qui consomme les messages de Kafka et les enregistre dans MongoDB
   consumer-here:
     build:
       context: ./consumer-here  # Chemin du Dockerfile du consumer

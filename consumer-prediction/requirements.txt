@@ -1,5 +1,0 @@
-kafka-python
-pymongo
-python-dotenv
-requests
-
