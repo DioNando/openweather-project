@@ -9,16 +9,16 @@ from datetime import datetime
 load_dotenv()
 
 # Kafka Configuration
-KAFKA_SERVER = 'kafka:9092'
+KAFKA_SERVER = os.getenv('KAFKA_SERVER', 'localhost:9092')
 KAFKA_WEATHER_TOPIC = os.getenv('KAFKA_WEATHER_TOPIC', 'weather_topic')
+KAFKA_PREDICTION_TOPIC = os.getenv('KAFKA_PREDICTION_TOPIC', 'prediction_topic')
 KAFKA_ALERT_TOPIC = os.getenv('KAFKA_ALERT_TOPIC', 'alert_topic')
 
 # API Configuration
-API_WEATHER_URL = os.getenv('API_WEATHER_URL')
-API_WEATHER_ENDPOINT = os.getenv("API_WEATHER_ENDPOINT")
-API_WEATHER_KEY = os.getenv('API_WEATHER_KEY')
-API_WEATHER_LANG = os.getenv('API_WEATHER_LANG')
-API_WEATHER_UNITS = os.getenv('API_WEATHER_UNITS')
+API_WEATHER_URL = os.getenv('API_WEATHER_URL', 'http://api.openweathermap.org/data/2.5/forecast')
+API_WEATHER_KEY = os.getenv('API_WEATHER_KEY', '1c3ca7a4c59327925116159a95298b33')
+API_WEATHER_LANG = os.getenv('API_WEATHER_LANG', 'fr')
+API_WEATHER_UNITS = os.getenv('API_WEATHER_UNITS', 'metric')
 
 # Initialiser Kafka Producer
 producer = KafkaProducer(
@@ -56,9 +56,6 @@ def process_message(data):
             return
 
         # Construire l'URL pour l'API de prévisions météo
-        # api_url = (
-        #     f"{API_WEATHER_URL}/{API_WEATHER_ENDPOINT}?lat={lat}&lon={lon}&appid={API_WEATHER_KEY}"
-        # )
         api_url = f"{API_WEATHER_URL}?id={city_id}&lang={API_WEATHER_LANG}&appid={API_WEATHER_KEY}&units={API_WEATHER_UNITS}"
 
         print(f"API URL: {api_url}")
@@ -102,31 +99,12 @@ def process_message(data):
             "timestamp": datetime.utcnow().isoformat()
         }
 
-        producer.send(KAFKA_WEATHER_TOPIC, prediction_data)
+        producer.send(KAFKA_PREDICTION_TOPIC, prediction_data)
         producer.flush()
         print(f"Weather forecast for {city}, {country} published successfully.")
 
     except Exception as e:
         print(f"Error processing message: {e}")
-
-# def consume_kafka_messages():
-#     """Consomme les messages Kafka et les traite."""
-#     consumer = KafkaConsumer(
-#         KAFKA_WEATHER_TOPIC,
-#         bootstrap_servers=KAFKA_SERVER,
-#         auto_offset_reset="earliest",
-#         enable_auto_commit=True,
-#         value_deserializer=lambda v: json.loads(v.decode('utf-8')),
-#         consumer_timeout_ms=1000,
-#     )
-
-#     print(f"Consuming messages from topic: {KAFKA_WEATHER_TOPIC}")
-#     for message in consumer:
-#         process_message(message)
-
-# if __name__ == "__main__":
-#     print("Starting Kafka Weather Service...")
-#     consume_kafka_messages()
 
 if __name__ == '__main__':
     print("Démarrage du consommateur Kafka...")
