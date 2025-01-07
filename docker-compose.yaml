@@ -228,25 +228,6 @@ services:
       MONGO_DB_WEATHER: ${MONGO_DB_WEATHER}  # Nom de la base de données MongoDB
       MONGO_COLLECTION_WEATHER: ${MONGO_COLLECTION_WEATHER}  # Nom de la collection MongoDB
 
-  # Consumer, service qui consomme les messages de Kafka et les enregistre dans MongoDB
-  consumer-here:
-    build:
-      context: ./consumer-here  # Chemin du Dockerfile du consumer
-    restart: unless-stopped  # Redémarre le service si il échoue
-    environment:
-      KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
-      KAFKA_WEATHER_TOPIC: ${KAFKA_WEATHER_TOPIC}  # Topic Kafka à consommer
-      KAFKA_HERE_TOPIC: ${KAFKA_HERE_TOPIC}  # Topic Kafka à consommer
-      API_HERE_URL: ${API_HERE_URL}
-      API_HERE_ENDPOINT: ${API_HERE_ENDPOINT}
-      API_HERE_RADIUS: ${API_HERE_RADIUS}
-      API_HERE_LOCATION_REFERENCING: ${API_HERE_LOCATION_REFERENCING}
-      API_HERE_KEY: ${API_HERE_KEY}
-    depends_on:
-      - kafka  # Le consumer dépend de Kafka pour recevoir les messages
-      - mongodb  # Le consumer dépend de MongoDB pour stocker les données
-      - consumer-openweather
-
   # Streamlit, service de visualisation des données météo avec une interface web
   streamlit:
     build: ./streamlit  # Chemin du Dockerfile de Streamlit
