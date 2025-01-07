@@ -236,7 +236,6 @@ services:
     environment:
       KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
       KAFKA_WEATHER_TOPIC: ${KAFKA_WEATHER_TOPIC}  # Topic Kafka à consommer
-      KAFKA_PREDICTION_TOPIC: ${KAFKA_PREDICTION_TOPIC}  # Topic Kafka à consommer
       KAFKA_HERE_TOPIC: ${KAFKA_HERE_TOPIC}  # Topic Kafka à consommer
       API_HERE_URL: ${API_HERE_URL}
       API_HERE_ENDPOINT: ${API_HERE_ENDPOINT}

@@ -64,7 +64,7 @@ FETCH_INTERVAL=10  # Intervalle de récupération des données en secondes
 
 3. Construisez et démarrez les services avec Docker Compose :
    ```bash
-   docker-compose up --build
+   docker-compose up -d --build
    ```
 
 4. Accédez à l'interface Streamlit :
