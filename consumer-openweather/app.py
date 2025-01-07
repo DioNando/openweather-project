@@ -34,6 +34,7 @@ def process_weather_data(data):
     try:
         # Exemple : extraction des champs pertinents
         processed_data = {
+            "id": data.get("city", {}).get("id"),
             "ville": data.get("city", {}).get("name"),  # Ville
             "pays": data.get("city", {}).get("country"),  # Pays
             "lattitude": data.get("city", {}).get("coord", {}).get("lat"),
