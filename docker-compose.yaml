@@ -217,9 +217,9 @@ services:
       - "1025:1025" # Port SMTP pour capturer les e-mails
 
   # Consumer, service qui consomme les messages de Kafka et les enregistre dans MongoDB
-  consumer-openweather:
+  consumer:
     build:
-      context: ./consumer-openweather  # Chemin du Dockerfile du consumer
+      context: ./consumer  # Chemin du Dockerfile du consumer
     restart: unless-stopped  # Redémarre le service si il échoue
     environment:
       KAFKA_SERVER: ${KAFKA_SERVER}  # Serveur Kafka
@@ -240,6 +240,30 @@ services:
       - "8501:8501"  # Expose l'application Streamlit sur le port 8501
     depends_on:
       - mongodb  # Streamlit dépend de MongoDB pour accéder aux données
+
+  # Backend-openweather, serveur API avec flask
+  flask:
+    build: ./flask  # Chemin du Dockerfile de Streamlit
+    environment:
+      MONGO_URI: ${MONGO_URI}  # URI de connexion à MongoDB
+      MONGO_DB_WEATHER: ${MONGO_DB_WEATHER}  # Nom de la base de données MongoDB
+      MONGO_COLLECTION_WEATHER: ${MONGO_COLLECTION_WEATHER}  # Nom de la collection MongoDB
+    ports:
+      - "5000:5000"  # Expose l'application Streamlit sur le port 8501
+    depends_on:
+      - mongodb  # Streamlit dépend de MongoDB pour accéder aux données
+
+  # Frontend-openweather, service de visualisation des données avec VueJs
+  vue:
+    build:
+      context: ./vue
+    ports:
+      - "8089:80"
+    volumes:
+      - ./vue-app:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
 
 volumes:
   postgres-data-volume:

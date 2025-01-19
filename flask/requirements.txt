@@ -1,0 +1,8 @@
+flask
+pymongo
+flask-cors
+pandas
+windrose
+seaborn
+matplotlib
+python-dotenv
