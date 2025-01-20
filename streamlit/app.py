@@ -195,6 +195,7 @@ elif page == "Autres graphiques":
         st.pyplot(fig)
 
         # Vitesse moyenne du vent par ville
+        st.subheader("Vitesse moyenne du vent par ville")
         fig, ax = plt.subplots()
         df.groupby('ville')['vitesse_vent'].mean().plot(kind='bar', ax=ax, color='purple')
         ax.set_xlabel("Ville")
