@@ -30,7 +30,7 @@ def temperature_evolution():
     result = get_data_and_partial_cleaning()
     ville_cible = 'Rabat'  # Remplacez par une ville de votre fichier
     result = result[result['ville'] == ville_cible].sort_values('temps_formaté')  # Trier par 'temps_formaté'
-    result=result[['temps_formaté', 'température', 'température_maximale']]
+    result=result[['temps_formaté', 'température', 'température_maximale', 'température_minimale', 'température_ressentie']]
     result['temps_formaté'] = result['temps_formaté'].dt.strftime('%d.%m %H:%M')
     return jsonify(result.to_dict())
 

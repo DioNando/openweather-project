@@ -23,6 +23,8 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale,
 const formatedTime = ref([]);
 const temperature = ref([]);
 const maximalTemperature = ref([]);
+const minimalTemperature = ref([]);
+const ressentTemperature = ref([]);
 
 // Colors for the chart (optional customization)
 const barColors = [
@@ -39,6 +41,8 @@ const getEvolution = async () => {
     formatedTime.value = Object.values(response.data['temps_formaté']);
     temperature.value = Object.values(response.data['température']);
     maximalTemperature.value = Object.values(response.data['température_maximale']);
+    minimalTemperature.value = Object.values(response.data['température_minimale']);
+    ressentTemperature.value = Object.values(response.data['température_ressentie']);
   } catch (err) {
     console.error('Error fetching data:', err);
   }
@@ -62,6 +66,20 @@ const chartData = ref({
           label: 'Température Maximale',
           data: [],
           borderColor: '#FF8A65',
+          borderDash: [5, 5],
+          fill: false
+        },
+        {
+          label: 'Température Minimale',
+          data: [],
+          borderColor: '#1a84d9',
+          borderDash: [5, 5],
+          fill: false
+        },
+        {
+          label: 'Température Ressentie',
+          data: ressentTemperature.value,
+          borderColor: '#41b682',
           borderDash: [5, 5],
           fill: false
         }
@@ -131,6 +149,20 @@ watchEffect(() => {
           label: 'Température Maximale',
           data: maximalTemperature.value,
           borderColor: '#FF8A65',
+          borderDash: [5, 5],
+          fill: false
+        },
+        {
+          label: 'Température Minimale',
+          data: minimalTemperature.value,
+          borderColor: '#1a84d9',
+          borderDash: [5, 5],
+          fill: false
+        },
+        {
+          label: 'Température Ressentie',
+          data: ressentTemperature.value,
+          borderColor: '#41b682',
           borderDash: [5, 5],
           fill: false
         }

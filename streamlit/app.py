@@ -60,6 +60,7 @@ def plot_data(df):
     ax.set_xlabel("Ville")
     ax.set_ylabel("Température (°C)")
     ax.legend()
+    plt.xticks(rotation=45)
     st.pyplot(fig)
 
     # Températures minimale et maximale par ville
@@ -134,27 +135,48 @@ def plot_data(df):
     st.pyplot(fig)
 
 # Interface Streamlit
+# Interface Streamlit avec pages
 st.title("Visualisation des données météo")
 
 # Ajouter une option pour l'auto-refresh
-auto_refresh = st.checkbox(
-    f"Activer l'actualisation automatique toutes les {FETCH_INTERVAL} secondes", 
-    value=False
-)
+# auto_refresh = st.checkbox(
+#     f"Activer l'actualisation automatique toutes les {FETCH_INTERVAL} secondes", 
+#     value=False
+# )
+
+# Ajouter une barre latérale pour la navigation
+page = st.sidebar.selectbox("Navigation", ["Page 1 : Tableau", "Page 2 : Graphiques"])
+
 # Charger les données
 data = fetch_data()
 df = create_dataframe(data)
 
-# Afficher les données
-if not df.empty:
+# # Boucle pour actualisation automatique
+# if auto_refresh:
+#     # Sleep pendant x secondes avant de relancer
+#     time.sleep(FETCH_INTERVAL)
+#     st.rerun()
+
+if page == "Page 1 : Tableau":
     st.subheader("Tableau des données")
-    st.dataframe(df)
 
-# Afficher les graphiques
-plot_data(df)
+    # Ajouter une option pour l'auto-refresh
+    auto_refresh = st.checkbox(
+        f"Activer l'actualisation automatique toutes les {FETCH_INTERVAL} secondes", 
+        value=False
+    )
 
-# Boucle pour actualisation automatique
-if auto_refresh:
-    # Sleep pendant 10 secondes avant de relancer
-    time.sleep(FETCH_INTERVAL)
-    st.rerun()
+    if not df.empty:
+        st.dataframe(df)
+    else:
+        st.warning("Aucune donnée à afficher.")
+
+    # Boucle pour actualisation automatique
+    if auto_refresh:
+        # Sleep pendant x secondes avant de relancer
+        time.sleep(FETCH_INTERVAL)
+        st.rerun()
+
+elif page == "Page 2 : Graphiques":
+    st.subheader("Graphiques")
+    plot_data(df)
