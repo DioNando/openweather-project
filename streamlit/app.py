@@ -28,10 +28,10 @@ def convert_timestamp_to_time(timestamp):
     """Convertir un timestamp en format hh:mm."""
     return datetime.utcfromtimestamp(timestamp).strftime('%H:%M')
 
-def fetch_data():
+def fetch_data(limit):
     """Récupérer les données depuis MongoDB."""
     try:
-        data = list(mongo_collection.find({}, {'_id': 0}).sort("_id", -1).limit(2500))
+        data = list(mongo_collection.find({}, {'_id': 0}).sort("_id", -1).limit(limit))
         return data
     except Exception as e:
         st.error(f"Erreur lors de la récupération des données : {e}")
@@ -50,8 +50,15 @@ def create_dataframe(data):
     
     return df
 
-# Charger les données
-data = fetch_data()
+data_limit = st.sidebar.selectbox(
+    "Nombre de données à afficher",
+    options=[2500, 5000, 10000],
+    index=0,  # Valeur par défaut
+    format_func=lambda x: f"{x} données"
+)
+
+# Charger les données avec la limite sélectionnée
+data = fetch_data(data_limit)
 df = create_dataframe(data)
 
 # Interface Streamlit avec pages
