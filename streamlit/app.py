@@ -101,7 +101,7 @@ if page == "Tableau des données":
     # Gestion de l'auto-refresh
     if auto_refresh:
         time.sleep(FETCH_INTERVAL)
-        st.experimental_rerun()
+        st.rerun()
 
 # Page 2 : Graphiques des températures
 elif page == "Graphiques des températures":
