@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import time
+import plotly.express as px
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -28,7 +29,7 @@ def convert_timestamp_to_time(timestamp):
 def fetch_data():
     """Récupérer les données depuis MongoDB."""
     try:
-        data = list(mongo_collection.find({}, {'_id': 0}).sort("_id", -1))
+        data = list(mongo_collection.find({}, {'_id': 0}).sort("_id", -1).limit(1000))
         return data
     except Exception as e:
         st.error(f"Erreur lors de la récupération des données : {e}")
@@ -134,7 +135,12 @@ def plot_data(df):
     ax.set_title("Types de météo")
     st.pyplot(fig)
 
-# Interface Streamlit
+def plot_map(df):
+    fig = px.scatter_geo(df, lat='lattitude', lon='longitude', color='température',
+                     hover_name='ville', size='vitesse_vent', projection='natural earth',
+                     color_continuous_scale='Viridis', title="Carte des températures")
+    fig.show()
+
 # Interface Streamlit avec pages
 st.title("Visualisation des données météo")
 
@@ -145,7 +151,7 @@ st.title("Visualisation des données météo")
 # )
 
 # Ajouter une barre latérale pour la navigation
-page = st.sidebar.selectbox("Navigation", ["Page 1 : Tableau", "Page 2 : Graphiques"])
+page = st.sidebar.selectbox("Navigation", ["Page 1 : Tableau", "Page 2 : Graphiques", "Page 3 : Map"])
 
 # Charger les données
 data = fetch_data()
@@ -180,3 +186,7 @@ if page == "Page 1 : Tableau":
 elif page == "Page 2 : Graphiques":
     st.subheader("Graphiques")
     plot_data(df)
+
+elif page == "Page 3 : Map":
+    st.subheader("Map")
+    plot_map(df)
