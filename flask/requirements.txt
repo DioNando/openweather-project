@@ -6,3 +6,6 @@ windrose
 seaborn
 matplotlib
 python-dotenv
+scikit-learn
+statsmodels
+numpy
