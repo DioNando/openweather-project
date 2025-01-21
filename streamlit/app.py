@@ -52,7 +52,7 @@ def create_dataframe(data):
 
 data_limit = st.sidebar.selectbox(
     "Nombre de données à afficher",
-    options=[2500, 5000, 10000],
+    options=[500, 2500, 5000, 10000],
     index=0,  # Valeur par défaut
     format_func=lambda x: f"{x} données"
 )
